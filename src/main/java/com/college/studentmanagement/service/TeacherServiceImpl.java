@@ -32,8 +32,8 @@ public class TeacherServiceImpl implements TeacherService {
 
 	@Override
 	@Transactional
-	public Teacher findByTeacherName(String teacherName) {
-		return teacherDao.findByTeacherName(teacherName);
+	public Teacher findByUserName(String userName) {   // ✔ updated method name
+		return teacherDao.findByUserName(userName);
 	}
 
 	@Override
@@ -52,7 +52,6 @@ public class TeacherServiceImpl implements TeacherService {
 		teacher.setLastName(userDto.getLastName());
 		teacher.setEmail(userDto.getEmail());
 
-		// Fetch role safely from DB
 		Role role = roleDao.findByName(userDto.getRole());
 		if (role == null) {
 			role = roleDao.findByName("ROLE_TEACHER"); // fallback default
@@ -81,7 +80,7 @@ public class TeacherServiceImpl implements TeacherService {
 	@Override
 	@Transactional
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-		Teacher teacher = teacherDao.findByTeacherName(username);
+		Teacher teacher = teacherDao.findByUserName(username); // ✔ updated
 		if (teacher == null) {
 			throw new UsernameNotFoundException("Invalid username or password.");
 		}

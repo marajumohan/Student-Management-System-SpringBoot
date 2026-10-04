@@ -32,8 +32,8 @@ public class StudentServiceImpl implements StudentService {
 
 	@Override
 	@Transactional
-	public Student findByStudentName(String studentName) {
-		return studentDao.findByStudentName(studentName);
+	public Student findByUserName(String userName) {   // ✔ updated method name
+		return studentDao.findByUserName(userName);
 	}
 
 	@Override
@@ -52,7 +52,6 @@ public class StudentServiceImpl implements StudentService {
 		student.setLastName(userDto.getLastName());
 		student.setEmail(userDto.getEmail());
 
-		// Fetch role safely from DB
 		Role role = roleDao.findByName(userDto.getRole());
 		if (role == null) {
 			role = roleDao.findByName("ROLE_STUDENT"); // fallback default
@@ -87,7 +86,7 @@ public class StudentServiceImpl implements StudentService {
 	@Override
 	@Transactional
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-		Student student = studentDao.findByStudentName(username);
+		Student student = studentDao.findByUserName(username); // ✔ updated
 		if (student == null) {
 			throw new UsernameNotFoundException("Invalid username or password.");
 		}

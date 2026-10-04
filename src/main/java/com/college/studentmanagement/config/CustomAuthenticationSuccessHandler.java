@@ -41,7 +41,7 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
 
 			if ("ROLE_STUDENT".equals(role)) {
 				String userName = authentication.getName();
-				Student student = studentService.findByStudentName(userName);
+				Student student = studentService.findByUserName(userName); // ✔ updated
 
 				if (student != null) {
 					HttpSession session = request.getSession();
@@ -54,7 +54,7 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
 
 			} else if ("ROLE_TEACHER".equals(role)) {
 				String userName = authentication.getName();
-				Teacher teacher = teacherService.findByTeacherName(userName);
+				Teacher teacher = teacherService.findByUserName(userName); // ✔ updated
 
 				if (teacher != null) {
 					HttpSession session = request.getSession();

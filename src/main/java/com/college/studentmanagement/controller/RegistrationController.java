@@ -55,11 +55,11 @@ public class RegistrationController {
 			return "registration/registration-form";
 		}
 
-		if(roleName.equals("ROLE_STUDENT")) {
-			String userName = user.getUserName();
+		String userName = user.getUserName();
 
+		if (roleName.equals("ROLE_STUDENT")) {
 			// if username already exists in db
-			if(studentService.findByStudentName(userName) != null) {
+			if (studentService.findByUserName(userName) != null) {   // ✔ updated
 				theModel.addAttribute("userDto", new UserDto());
 				theModel.addAttribute("registrationError", "User name already exists!");
 				return "registration/registration-form";
@@ -68,12 +68,10 @@ public class RegistrationController {
 			Role role = roleDao.findByName(roleName);
 			user.setRole(role.getName()); // assign role name string
 			studentService.save(user);
+
 		} else { // teacher role
-
-			String userName = user.getUserName();
-
 			// if username already exists in db
-			if(teacherService.findByTeacherName(userName) != null) {
+			if (teacherService.findByUserName(userName) != null) {   // ✔ updated
 				theModel.addAttribute("userDto", new UserDto());
 				theModel.addAttribute("registrationError", "User name already exists!");
 				return "registration/registration-form";
