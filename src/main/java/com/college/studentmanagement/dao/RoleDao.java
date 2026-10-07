@@ -1,8 +1,13 @@
 package com.college.studentmanagement.dao;
 
-import org.springframework.data.jpa.repository.JpaRepository;
 import com.college.studentmanagement.entity.Role;
 
-public interface RoleDao extends JpaRepository<Role, Integer> {
-	Role findByName(String name); // auto-implemented by Spring Data JPA
+public interface RoleDao {
+	
+	public Role findRoleByName(String theRoleName);
+	
+	public Role save(Role theRole);
+	
+	//assigns the given role to the teacher/student rows that have no role yet
+	public int assignRoleWhereMissing(String entityName, Role theRole);
 }

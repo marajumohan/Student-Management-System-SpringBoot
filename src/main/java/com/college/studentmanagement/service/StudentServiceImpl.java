@@ -1,9 +1,10 @@
 package com.college.studentmanagement.service;
 
+
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,23 +24,24 @@ import com.college.studentmanagement.user.UserDto;
 
 @Service
 public class StudentServiceImpl implements StudentService {
-
+	
 	@Autowired
 	private StudentDao studentDao;
-
-	@Autowired
+	
+	@Autowired 
 	private RoleDao roleDao;
+	
 
 	@Override
 	@Transactional
-	public Student findByUserName(String userName) {   // ✔ updated method name
-		return studentDao.findByUserName(userName);
+	public Student findByStudentName(String studentName) {
+		return studentDao.findByStudentName(studentName);
 	}
-
+	
 	@Override
 	@Transactional
 	public Student findByStudentId(int id) {
-		return studentDao.findById(id).orElse(null);
+		return studentDao.findByStudentId(id);
 	}
 
 	@Override
@@ -50,31 +52,44 @@ public class StudentServiceImpl implements StudentService {
 		student.setPassword(new BCryptPasswordEncoder().encode(userDto.getPassword()));
 		student.setFirstName(userDto.getFirstName());
 		student.setLastName(userDto.getLastName());
-		student.setEmail(userDto.getEmail());
-
-		Role role = roleDao.findByName(userDto.getRole());
-		if (role == null) {
-			role = roleDao.findByName("ROLE_STUDENT"); // fallback default
-		}
-		student.setRole(role);
-
+		student.setEmail(userDto.getEmail());		
+		student.setRole(userDto.getRole());	
+		
 		studentDao.save(student);
 	}
-
+	
+	
 	@Override
 	@Transactional
-	public void save(Student student) {
-		if (student.getRole() == null) {
-			Role defaultRole = roleDao.findByName("ROLE_STUDENT");
-			student.setRole(defaultRole);
+	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+		Student student = studentDao.findByStudentName(username);
+		if (student == null) {
+			throw new UsernameNotFoundException("Invalid username or password.");
 		}
-		studentDao.save(student);
+		if (student.getRole() == null) {
+			throw new UsernameNotFoundException("No role is assigned to user " + username + ".");
+		}
+		Collection<Role> role = new ArrayList<>();
+		role.add(student.getRole());
+		return new org.springframework.security.core.userdetails.User(student.getUserName(), student.getPassword(),
+				mapRolesToAuthorities(role));
+	}
+	
+	private Collection<? extends GrantedAuthority> mapRolesToAuthorities(Collection<Role> roles) {
+		return roles.stream().map(role -> new SimpleGrantedAuthority(role.getName())).collect(Collectors.toList());
 	}
 
 	@Override
 	@Transactional
 	public List<Student> findAllStudents() {
-		return studentDao.findAll();
+		return studentDao.findAllStudents();
+	}
+
+	@Override
+	@Transactional
+	public void save(Student student) {
+		studentDao.save(student);
+		
 	}
 
 	@Override
@@ -83,36 +98,4 @@ public class StudentServiceImpl implements StudentService {
 		studentDao.deleteById(id);
 	}
 
-	@Override
-	@Transactional
-	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-		Student student = studentDao.findByUserName(username); // ✔ updated
-		if (student == null) {
-			throw new UsernameNotFoundException("Invalid username or password.");
-		}
-
-		Role role = student.getRole();
-		if (role == null) {
-			role = roleDao.findByName("ROLE_STUDENT");
-			student.setRole(role);
-		}
-
-		Collection<Role> roles = new ArrayList<>();
-		roles.add(role);
-
-		return org.springframework.security.core.userdetails.User.builder()
-				.username(student.getUserName())
-				.password(student.getPassword())
-				.authorities(mapRolesToAuthorities(roles))
-				.build();
-	}
-
-	private Collection<? extends GrantedAuthority> mapRolesToAuthorities(Collection<Role> roles) {
-		return roles.stream()
-				.filter(Objects::nonNull)
-				.map(role -> new SimpleGrantedAuthority(
-						role.getName() != null ? role.getName() : "ROLE_STUDENT"
-				))
-				.collect(Collectors.toList());
-	}
 }
