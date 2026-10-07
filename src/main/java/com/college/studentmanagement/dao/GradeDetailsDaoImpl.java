@@ -7,7 +7,6 @@ import org.hibernate.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import com.college.studentmanagement.entity.Course;
 import com.college.studentmanagement.entity.GradeDetails;
 
 @Repository

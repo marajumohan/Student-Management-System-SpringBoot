@@ -3,32 +3,35 @@ package com.college.studentmanagement.user;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 
-public class UserDto {
+import com.college.studentmanagement.entity.Role;
 
+
+public class UserDto {
+	
 	@NotBlank(message = "is required")
 	@Size(min = 1, message = "is required")
 	private String userName;
-
+	
 	@NotBlank(message = "is required")
 	@Size(min = 1, message = "is required")
 	private String password;
-
+	
 	@NotBlank(message = "is required")
 	@Size(min = 1, message = "is required")
 	private String firstName;
-
+	
 	@NotBlank(message = "is required")
 	@Size(min = 1, message = "is required")
 	private String lastName;
-
+	
 	@NotBlank(message = "is required")
 	@Size(min = 1, message = "is required")
 	private String email;
-
-	// Role stored as a String (role name)
-	private String role;
-
+	
+	private Role role;
+	
 	public UserDto() {
+		
 	}
 
 	public String getUserName() {
@@ -71,11 +74,15 @@ public class UserDto {
 		this.email = email;
 	}
 
-	public String getRole() {
+	public Role getRole() {
 		return role;
 	}
 
-	public void setRole(String role) {
+	public void setRole(Role role) {
 		this.role = role;
 	}
+
+	
+	
+	
 }

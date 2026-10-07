@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.college.studentmanagement.entity.AssignmentDetails;
-import com.college.studentmanagement.entity.StudentCourseDetails;
 
 @Repository
 public class AssignmentDetailsDaoImpl implements AssignmentDetailsDao {

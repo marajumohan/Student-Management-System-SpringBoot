@@ -1,8 +1,19 @@
 package com.college.studentmanagement.dao;
 
-import org.springframework.data.jpa.repository.JpaRepository;
+import java.util.List;
+
 import com.college.studentmanagement.entity.Student;
 
-public interface StudentDao extends JpaRepository<Student, Integer> {
-	Student findByUserName(String userName); // ✔ matches entity field
+public interface StudentDao {
+	
+	public Student findByStudentName(String theStudentName);
+	
+	public void save(Student student);
+	
+	
+	public Student findByStudentId(int id);
+	
+	public List<Student> findAllStudents();
+	
+	public void deleteById(int id);
 }

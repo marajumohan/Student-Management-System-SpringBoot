@@ -37,13 +37,11 @@ public class Course {
 	@Column(name="name")
 	private String name;
 	
-	@ManyToOne(cascade= {CascadeType.DETACH, CascadeType.MERGE,
-			CascadeType.PERSIST, CascadeType.REFRESH}, fetch=FetchType.EAGER)
+	@ManyToOne(cascade= {CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH}, fetch=FetchType.EAGER)
 	@JoinColumn(name = "teacher_id")
 	private Teacher teacher;
 	
-	@ManyToMany(cascade= {CascadeType.DETACH, CascadeType.MERGE,
-			CascadeType.PERSIST, CascadeType.REFRESH}, fetch=FetchType.EAGER)
+	@ManyToMany(cascade= {CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH}, fetch=FetchType.EAGER)
 	@JoinTable(name="student_course_details",
 				joinColumns = @JoinColumn(name="course_id"),
 				inverseJoinColumns = @JoinColumn(name="student_id"))			

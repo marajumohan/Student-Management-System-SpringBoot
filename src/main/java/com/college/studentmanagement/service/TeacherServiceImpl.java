@@ -3,7 +3,6 @@ package com.college.studentmanagement.service;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,23 +22,18 @@ import com.college.studentmanagement.user.UserDto;
 
 @Service
 public class TeacherServiceImpl implements TeacherService {
-
+	
 	@Autowired
 	private TeacherDao teacherDao;
-
-	@Autowired
+	
+	@Autowired 
 	private RoleDao roleDao;
-
+	
+	
 	@Override
 	@Transactional
-	public Teacher findByUserName(String userName) {   // ✔ updated method name
-		return teacherDao.findByUserName(userName);
-	}
-
-	@Override
-	@Transactional
-	public Teacher findByTeacherId(int id) {
-		return teacherDao.findById(id).orElse(null);
+	public Teacher findByTeacherName(String teacherName) {
+		return teacherDao.findByTeacherName(teacherName);
 	}
 
 	@Override
@@ -50,69 +44,60 @@ public class TeacherServiceImpl implements TeacherService {
 		teacher.setPassword(new BCryptPasswordEncoder().encode(userDto.getPassword()));
 		teacher.setFirstName(userDto.getFirstName());
 		teacher.setLastName(userDto.getLastName());
-		teacher.setEmail(userDto.getEmail());
-
-		Role role = roleDao.findByName(userDto.getRole());
-		if (role == null) {
-			role = roleDao.findByName("ROLE_TEACHER"); // fallback default
-		}
-		teacher.setRole(role);
-
+		teacher.setEmail(userDto.getEmail());		
+		teacher.setRole(userDto.getRole());	
+		
 		teacherDao.save(teacher);
 	}
-
+	
 	@Override
 	@Transactional
 	public void save(Teacher teacher) {
-		if (teacher.getRole() == null) {
-			Role defaultRole = roleDao.findByName("ROLE_TEACHER");
-			teacher.setRole(defaultRole);
-		}
-		teacherDao.save(teacher);
+		teacherDao.save(teacher);	
 	}
-
+	
+	
 	@Override
 	@Transactional
 	public List<Teacher> findAllTeachers() {
-		return teacherDao.findAll();
+		return teacherDao.findAllTeachers();
+	}
+	
+	
+	@Override
+	@Transactional
+	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+		Teacher teacher = teacherDao.findByTeacherName(username);
+		if (teacher == null) {
+			throw new UsernameNotFoundException("Invalid username or password.");
+		}
+		if (teacher.getRole() == null) {
+			throw new UsernameNotFoundException("No role is assigned to user " + username + ".");
+		}
+		Collection<Role> role = new ArrayList<>();
+		role.add(teacher.getRole());
+		return new org.springframework.security.core.userdetails.User(teacher.getUserName(), teacher.getPassword(),
+				mapRolesToAuthorities(role));
+	}
+	
+	private Collection<? extends GrantedAuthority> mapRolesToAuthorities(Collection<Role> roles) {
+		return roles.stream().map(role -> new SimpleGrantedAuthority(role.getName())).collect(Collectors.toList());
 	}
 
 	@Override
 	@Transactional
-	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-		Teacher teacher = teacherDao.findByUserName(username); // ✔ updated
-		if (teacher == null) {
-			throw new UsernameNotFoundException("Invalid username or password.");
-		}
-
-		Role role = teacher.getRole();
-		if (role == null) {
-			role = roleDao.findByName("ROLE_TEACHER");
-			teacher.setRole(role);
-		}
-
-		Collection<Role> roles = new ArrayList<>();
-		roles.add(role);
-
-		return org.springframework.security.core.userdetails.User.builder()
-				.username(teacher.getUserName())
-				.password(teacher.getPassword())
-				.authorities(mapRolesToAuthorities(roles))
-				.build();
-	}
-
-	private Collection<? extends GrantedAuthority> mapRolesToAuthorities(Collection<Role> roles) {
-		return roles.stream()
-				.filter(Objects::nonNull)
-				.map(role -> new SimpleGrantedAuthority(
-						role.getName() != null ? role.getName() : "ROLE_TEACHER"
-				))
-				.collect(Collectors.toList());
+	public Teacher findByTeacherId(int id) {
+		return teacherDao.findByTeacherId(id);
 	}
 
 	@Override
 	@Transactional
 	public void deleteTeacherById(int id) {
-		teacherDao.deleteById(id);
+		teacherDao.deleteTeacherById(id);	
 	}
+
+	
+
+	
+
 }

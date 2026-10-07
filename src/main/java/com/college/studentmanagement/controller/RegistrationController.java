@@ -24,64 +24,78 @@ import com.college.studentmanagement.user.UserDto;
 @Controller
 @RequestMapping("/register")
 public class RegistrationController {
-
+	
 	@Autowired
 	private StudentService studentService;
-
+	
 	@Autowired
 	private TeacherService teacherService;
-
+	
 	@Autowired
 	private RoleDao roleDao;
-
+	
 	@InitBinder
 	public void initBinder(WebDataBinder dataBinder) {
+		
 		StringTrimmerEditor stringTrimmerEditor = new StringTrimmerEditor(true);
+		
 		dataBinder.registerCustomEditor(String.class, stringTrimmerEditor);
-	}
-
+	}	
+	
+	
+	
 	@GetMapping("/showRegistrationForm")
 	public String showRegistrationForm(Model theModel) {
-		theModel.addAttribute("userDto", new UserDto());
+		theModel.addAttribute("userDto", new UserDto());		
 		return "registration/registration-form";
 	}
-
+	
+	
 	@PostMapping("/processRegistrationForm")
-	public String processRegistrationForm(@Valid @ModelAttribute("userDto") UserDto user,
-										  BindingResult theBindingResult,
-										  @RequestParam(value="role") String roleName,
-										  Model theModel) {
+	public String processRegistrationForm(@Valid @ModelAttribute("userDto") UserDto user, 
+										  BindingResult theBindingResult, @RequestParam(value="role") String roleName, Model theModel) {
 		if (theBindingResult.hasErrors()) {
 			return "registration/registration-form";
 		}
-
-		String userName = user.getUserName();
-
-		if (roleName.equals("ROLE_STUDENT")) {
-			// if username already exists in db
-			if (studentService.findByUserName(userName) != null) {   // ✔ updated
+		
+		if(roleName.equals("ROLE_STUDENT")) {
+			String userName = user.getUserName();
+			
+			//if username already exists in db
+			if(studentService.findByStudentName(userName) != null) {
 				theModel.addAttribute("userDto", new UserDto());
 				theModel.addAttribute("registrationError", "User name already exists!");
 				return "registration/registration-form";
 			}
-
-			Role role = roleDao.findByName(roleName);
-			user.setRole(role.getName()); // assign role name string
-			studentService.save(user);
-
-		} else { // teacher role
-			// if username already exists in db
-			if (teacherService.findByUserName(userName) != null) {   // ✔ updated
+					
+			Role role = roleDao.findRoleByName(roleName);
+			if (role == null) {
+				theModel.addAttribute("registrationError", "Registration is unavailable: role " + roleName + " is not defined.");
+				return "registration/registration-form";
+			}
+			user.setRole(role);
+			studentService.save(user); //save() method converts UserDto to Student and saves it in db
+		} else { //teacher role
+			
+			String userName = user.getUserName();
+			
+			//if username already exists in db
+			if(teacherService.findByTeacherName(userName) != null) {
 				theModel.addAttribute("userDto", new UserDto());
 				theModel.addAttribute("registrationError", "User name already exists!");
 				return "registration/registration-form";
 			}
-
-			Role role = roleDao.findByName(roleName);
-			user.setRole(role.getName()); // assign role name string
+					
+			Role role = roleDao.findRoleByName(roleName);
+			if (role == null) {
+				theModel.addAttribute("registrationError", "Registration is unavailable: role " + roleName + " is not defined.");
+				return "registration/registration-form";
+			}
+			user.setRole(role);
 			teacherService.save(user);
 		}
-
+		
+		
 		return "registration/registration-confirmation";
 	}
 }
